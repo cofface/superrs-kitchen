@@ -1,0 +1,2 @@
+ui_print("Extracting #PEXTRA ..."); ui_print(" ");
+package_extract_file("#PEXTRA_new.img", file_getprop("/tmp/config", "byname") + "#PARTEXTRA" + file_getprop("/tmp/config", "slotnum"));

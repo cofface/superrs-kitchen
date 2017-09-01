@@ -1,0 +1,6 @@
+\/dev\/block\/mmcblk0p18 \/system
+\/dev\/block\/mmcblk0p9 \/boot
+\/dev\/block\/mmcblk0p21 \/data
+\/dev\/block\/mmcblk0p19 \/cache
+\/dev\/block\/mmcblk0p10 \/recovery
+\/dev\/block\/mmcblk0p13 \/modem

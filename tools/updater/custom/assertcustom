@@ -1,0 +1,2 @@
+assert(getprop("#PROPNAME") == "#PROPVALUE" ||
+	abort("This package is for \"#PROPVALUE\"; this is \"" + getprop("#PROPNAME") + "\"."););

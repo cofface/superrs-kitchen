@@ -1,0 +1,41 @@
+#ASSERT
+ifelse(is_mounted("/system"), unmount("/system"));
+ui_print(" ");
+ui_print(" ");
+ui_print("#SIGNATURE Installer");
+ui_print("Built with SuperR's Kitchen");
+ui_print(" ");
+ui_print(" ");
+ui_print(" ");
+ui_print(" ");
+ui_print("Checking config ...");
+ui_print(" ");
+package_extract_dir("config", "/tmp");
+set_metadata("/tmp/configure.sh", "uid", 0, "gid", 0, "mode", 0777);
+run_program("/tmp/configure.sh");
+ui_print("Formatting system ...");
+ui_print(" ");
+format("ext4", "EMMC", file_getprop("/tmp/config", "byname") + "/system" + file_getprop("/tmp/config", "slotnum"), "0", "/system");
+set_progress(0.100000);
+mount("ext4", "EMMC", file_getprop("/tmp/config", "byname") + "/system" + file_getprop("/tmp/config", "slotnum"), "/system");
+package_extract_dir("install", "/tmp/install");
+set_metadata_recursive("/tmp/install", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644);
+set_metadata_recursive("/tmp/install/bin", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0755);
+mount("ext4", "EMMC", file_getprop("/tmp/config", "byname") + "/system" + file_getprop("/tmp/config", "slotnum"), "/system");
+run_program("/tmp/install/bin/backuptool.sh", "backup");
+unmount("/system");
+show_progress(0.750000, 0);
+ui_print("Extracting system...");
+ui_print(" ");
+block_image_update(file_getprop("/tmp/config", "byname") + "/system" + file_getprop("/tmp/config", "slotnum"), package_extract_file("system.transfer.list"), "system.new.dat", "system.patch.dat");
+show_progress(0.020000, 10);
+mount("ext4", "EMMC", file_getprop("/tmp/config", "byname") + "/system" + file_getprop("/tmp/config", "slotnum"), "/system", "");
+run_program("/tmp/install/bin/backuptool.sh", "restore");
+unmount("/system");
+ui_print("Extracting boot image..."); ui_print(" "); show_progress(0.050000, 5);
+package_extract_file("boot.img", file_getprop("/tmp/config", "byname") + "/boot" + file_getprop("/tmp/config", "slotnum"));
+#ROOT
+ui_print(" ");
+#BUSYBOX
+show_progress(0.200000, 10);
+ui_print("#SIGNATURE Installed");

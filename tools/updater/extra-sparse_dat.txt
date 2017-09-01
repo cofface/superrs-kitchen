@@ -1,0 +1,2 @@
+ui_print("Extracting #PEXTRA ..."); ui_print(" ");
+block_image_update(file_getprop("/tmp/config", "byname") + "#PARTEXTRA" + file_getprop("/tmp/config", "slotnum"), package_extract_file("#PEXTRA.transfer.list"), "#PEXTRA.new.dat", "#PEXTRA.patch.dat");

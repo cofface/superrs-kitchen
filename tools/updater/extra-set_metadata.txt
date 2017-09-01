@@ -1,0 +1,4 @@
+ui_print("Extracting #PEXTRA ..."); ui_print(" ");
+package_extract_dir("#PEXTRA", "/#PEXTRA");
+set_metadata_recursive("/#PEXTRA", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/#PEXTRA/bin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");

@@ -1,0 +1,3 @@
+package_extract_dir("rootzip", "/tmp/rootzip");
+run_program("/sbin/busybox", "unzip", "/tmp/rootzip/#ROOTZIP", "META-INF/com/google/android/*", "-d", "/tmp/rootzip");
+run_program("/sbin/sh", "/tmp/rootzip/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/rootzip/#ROOTZIP");

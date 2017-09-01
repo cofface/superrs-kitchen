@@ -1,0 +1,2 @@
+ui_print("Extracting data..."); ui_print(" ");
+block_image_update(file_getprop("/tmp/config", "byname") + "#PARTDATA", package_extract_file("data.transfer.list"), "data.new.dat", "data.patch.dat");

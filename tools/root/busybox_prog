@@ -1,0 +1,3 @@
+package_extract_dir("busybox", "/tmp/busybox");
+run_program("/sbin/busybox", "unzip", "/tmp/busybox/#BUSYBOX1", "META-INF/com/google/android/*", "-d", "/tmp/busybox");
+run_program("/sbin/sh", "/tmp/busybox/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/busybox/#BUSYBOX1");

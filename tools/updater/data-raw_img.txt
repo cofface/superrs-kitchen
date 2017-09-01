@@ -1,0 +1,2 @@
+ui_print("Extracting data..."); ui_print(" ");
+package_extract_file("data_new.img", file_getprop("/tmp/config", "byname") + "#PARTDATA");

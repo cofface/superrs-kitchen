@@ -1,0 +1,1 @@
+assert(getprop("ro.product.device") == "#DEVICENAME" || getprop("ro.build.product") == "#DEVICENAME" || getprop("ro.product.name") == "#DEVICENAME" ||

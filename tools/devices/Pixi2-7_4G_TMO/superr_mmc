@@ -1,0 +1,4 @@
+\/dev\/block\/mmcblk0p25 \/system
+\/dev\/block\/mmcblk0p23 \/boot
+\/dev\/block\/mmcblk0p36 \/data
+\/dev\/block\/mmcblk0p31 \/cache

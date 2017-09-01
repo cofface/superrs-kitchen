@@ -1,0 +1,110 @@
+set_metadata_recursive("/system", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/addon.d", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/bin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+#BIN
+set_metadata_recursive("/system/CDA", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:cda_res_files:s0");
+set_metadata("/system/CDA", "uid", 0, "gid", 0, "mode", 0111, "capabilities", 0x0, "selabel", "u:object_r:cda_res_files:s0");
+set_metadata_recursive("/system/CDA/items", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc
+system/etc/bash
+system/etc/bluetooth
+system/etc/bluetooth/auto_pair_devlist.conf
+system/etc/bluetooth/auto_pairing.conf
+system/etc/bluetooth/blacklist.conf
+system/etc/bluetooth/bt_did.conf
+system/etc/bluetooth/bt_stack.conf
+set_metadata_recursive("/system/etc/dhcpcd", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc/dhcpcd/dhcpcd-hooks
+system/etc/dhcpcd/dhcpcd-run-hooks
+system/etc/install-recovery.sh
+system/recovery-from-boot.p
+system/etc/event-log-tags
+set_metadata_recursive("/system/etc/firmware", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/etc/firmware/wlan", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc/firmware/wlan/prima
+set_metadata_recursive("/system/etc/hostapd", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc/hostapd/hostapd_default.conf
+system/etc/hsml.key
+system/etc/init.goldfish.sh
+system/etc/init.qcom.sdio.sh
+system/etc/init.sec.boot.sh
+system/etc/install-recovery.sh
+system/etc/nano
+system/etc/partition_permission.sh
+system/etc/permissions
+set_metadata_recursive("/system/etc/ppp", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0555, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc/security
+system/etc/security/cacerts
+system/etc/security/.drm
+set_metadata_recursive("/system/etc/ssh", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/etc/ssh/sshd_config
+system/etc/wide-dhcpv6/dhcp6c.script
+set_metadata_recursive("/system/lib", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/vendor", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/vendor/bin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+#VBIN
+system/vendor/etc
+system/vendor/etc/audio_effects.conf
+system/vendor/etc/msm_irqbalance.conf
+system/vendor/etc/nxp
+system/vendor/etc/nxp/BargeIn
+system/vendor/etc/nxp/mVoIP
+system/vendor/etc/nxp/mVoIPFMC
+system/vendor/etc/nxp/mVoIPSec
+system/vendor/firmware
+system/vendor/firmware/discretix
+system/vendor/firmware/keymaster
+set_metadata_recursive("/system/vendor/itson", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/itson/itson-bootstrapper.sh
+system/vendor/itson/itson_installer
+system/vendor/lib
+set_metadata_recursive("/system/vendor/lib/drm", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/lib/drm/libdrmwvmplugin.so
+system/vendor/lib/egl
+set_metadata_recursive("/system/vendor/lib/hw", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/lib/hw/power.qcom.so
+system/vendor/lib/hw/sensors.msm8974.so
+system/vendor/lib/hw/sensors.msm8084.so
+system/vendor/lib/hw/flp.default.so
+set_metadata_recursive("/system/vendor/lib/mediadrm", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/lib/mediadrm/libdrmclearkeyplugin.so
+system/vendor/lib/mediadrm/libwvdrmengine.so
+set_metadata_recursive("/system/vendor/lib/qcdrm", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+set_metadata_recursive("/system/vendor/lib/qcdrm/playready", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/lib/qcdrm/playready/lib
+set_metadata_recursive("/system/vendor/lib/qcdrm/playready/lib/drm", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/lib/qcdrm/playready/lib/drm/libdrmprplugin_customer.so
+system/vendor/lib/qcdrm/playready/lib/mediadrm
+system/vendor/lib/rfsa
+system/vendor/lib/rfsa/adsp
+system/vendor/lib/soundfx
+system/vendor/media
+system/vendor/moto
+system/vendor/moto/audiomonitor
+system/vendor/moto/audiomonitor/sensory
+system/vendor/pittpatt
+system/vendor/pittpatt/models
+system/vendor/pittpatt/models/detection
+system/vendor/pittpatt/models/detection/multi_pose_face_landmark_detectors.7
+system/vendor/pittpatt/models/detection/multi_pose_face_landmark_detectors.8
+system/vendor/pittpatt/models/detection/yaw_roll_face_detectors.6
+system/vendor/pittpatt/models/detection/yaw_roll_face_detectors.7.1
+set_metadata_recursive("/system/vendor/pittpatt/models/recognition", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/vendor/pittpatt/models/recognition/face.face.y0-y0-22-b-N.bin
+system/vendor/pittpatt/models/recognition/face.face.y0-y0-71-N-tree_7-wmd.bin
+set_metadata_recursive("/system/xbin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+system/xbin/BGW
+system/xbin/busybox
+system/xbin/daemonsu
+system/xbin/debuggerd
+system/xbin/dexdump
+system/xbin/librank
+system/xbin/mnld
+system/xbin/nc
+system/xbin/procmem
+system/xbin/procrank
+system/xbin/su
+system/xbin/sugote
+system/xbin/sugote-mksh
+system/xbin/supolicy
+system/xbin/tcpdump
