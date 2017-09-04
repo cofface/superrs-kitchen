@@ -199,7 +199,7 @@ boot_initd() {
 		boot_tools
 		return 1
 	fi
-	if [[ -f $romdir/system/default.prop ]]; then
+	if [[ -f $romdir/system/init.rc ]]; then
 		banner
 		echo "$redb$yellowt$bold$t_error$normal"
 		echo -e "$redt$t_boot_initd_pixel$normal"
@@ -470,12 +470,12 @@ boot_tools() {
 			chosenimg2="recovery.img"
 		fi
 	fi
-	if [[ -f $romdir/system/default.prop ]]; then
+	if [[ -f $romdir/system/init.rc ]]; then
 		ramdir="$romdir/system"
 	else
 		ramdir="$romdir/${chosenimg}img/ramdisk"
 	fi
-	if [[ -d $romdir/${chosenimg}img || -f $romdir/system/default.prop ]]; then
+	if [[ -d $romdir/${chosenimg}img || -f $romdir/system/init.rc ]]; then
 		choice=""
 		while [[ ! ${choice} =~ ^[1-5]$ ]] && [[ ! $choice = "m" && ! $choice = "q" ]]; do
 			banner
@@ -484,7 +484,7 @@ boot_tools() {
 			echo ""
 			echo "$yellowb$redt$t_title_boot$normal"
 			echo ""
-			if [[ ! -f $romdir/system/default.prop ]]; then
+			if [[ ! -f $romdir/system/init.rc ]]; then
 				echo "1) $t_menu_pack_boot $chosenimg2"
 			fi
 			if [[ $chosenimg = "boot" ]]; then
@@ -497,7 +497,7 @@ boot_tools() {
 			echo "${magentat}q = $t_menu_quit$normal"
 			echo ""
 			read -n 1 -p "$t_select" choice
-			if [[ -f $romdir/system/default.prop ]]; then
+			if [[ -f $romdir/system/init.rc ]]; then
 				if [[ $choice = "1" ]]; then
 					choice=""
 				fi
@@ -522,7 +522,7 @@ boot_tools() {
 			return 1
 		# START Remove dm-verity
 		elif [[ $choice = "4" ]]; then
-			if [[ -f $romdir/system/default.prop ]]; then
+			if [[ -f $romdir/system/init.rc ]]; then
 				cd $romdir/system
 			else
 				cd $romdir/bootimg/ramdisk
@@ -546,7 +546,7 @@ boot_tools() {
 			return 1
 		# START Remove forceencrypt
 		elif [[ $choice = "5" ]]; then
-			if [[ -f $romdir/system/default.prop ]]; then
+			if [[ -f $romdir/system/init.rc ]]; then
 				cd $romdir/system
 			else
 				cd $romdir/bootimg/ramdisk
@@ -1510,7 +1510,7 @@ change_permtype() {
 		if [[ $permtype = "sparse_dat" ]]; then
 			echo "3) $t_perm_sparse ($bluet$t_current$normal)"
 		else
-			if [[ $api -ge "21" && ! -f $romdir/system/default.prop ]]; then
+			if [[ $api -ge "21" && ! -f $romdir/system/init.rc ]]; then
 				echo "3) $t_perm_sparse"
 			else
 				echo "${redt}3) $t_perm_sparse_red$normal"
@@ -1639,7 +1639,7 @@ change_permtype() {
 		echo "$permtype" > $prfiles/permtype
 	# Sparse dat chosen
 	elif [[ $choice = "3" ]]; then
-		if [[ $api -lt "21" || -f $romdir/system/default.prop ]]; then
+		if [[ $api -lt "21" || -f $romdir/system/init.rc ]]; then
 			banner
 			echo "$redb$yellowt$bold$t_error$normal"
 			echo "$redt$t_perm_sparse_error$normal"
@@ -2411,9 +2411,13 @@ deodex() {
 		done
 	fi
 	if [[ $dtype != "l" ]]; then
-		odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/framework/oat/\|system/framework/$arch/\|system/framework/$arch2/\|system/app/\|system/priv-app/\|system/vendor/framework" | rev | cut -d"/" -f4- | rev | sort -u)
+		if [[ -f $romdir/system/init.rc ]]; then
+			odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/system/framework/oat/\|system/system/framework/$arch/\|system/system/framework/$arch2/\|^system/system/app/\|^system/system/priv-app/\|system/system/vendor/framework" | rev | cut -d"/" -f4- | rev | sort -u)
+		else
+			odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/framework/oat/\|system/framework/$arch/\|system/framework/$arch2/\|^system/app/\|^system/priv-app/\|system/vendor/framework" | rev | cut -d"/" -f4- | rev | sort -u)
+		fi
 	else
-		odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/framework/$arch/\|system/framework/$arch2/\|system/app/\|system/priv-app/" | rev | cut -d"/" -f3- | rev | sort -u)
+		odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/framework/$arch/\|system/framework/$arch2/\|^system/app/\|^system/priv-app/" | rev | cut -d"/" -f3- | rev | sort -u)
 	fi
 	if [[ -d $sysdir/app && $odextmp != "" ]]; then
 		echo "$clears"
@@ -2425,7 +2429,7 @@ deodex() {
 		extraapp=""
 		line=""
 		for line in $odextmp; do
-			if [[ ! $(basename "$line" | grep "^\.") = "" ]]; then
+			if [[ $(basename "$line" | grep "^\.") != "" ]]; then
 				newapp=$(ls $line | grep .apk | cut -d"." -f1)
 				newappdir=$(echo "$line" | rev | cut -d"/" -f2- | rev)/$newapp
 				mv $line $newappdir
@@ -3680,7 +3684,7 @@ extract_new() {
 			tar -xf $romtar 2>/dev/null >> $logs/zip.log
 		fi
 	fi
-	if [[ -f $romdir/system/default.prop && -d $romdir/system/system ]]; then
+	if [[ -f $romdir/system/init.rc && -d $romdir/system/system ]]; then
 		sysdir="$romdir/system/system"
 	elif [[ -f $romdir/system/system/build.prop ]]; then
 		mv $romdir/system/system/* $romdir/system/
@@ -3766,6 +3770,9 @@ extract_new() {
 				link1=$(find system vendor -type l -printf "%l\n" 2>/dev/null | sed 's/^/symlink(\"/; s/$/\", /')
 				link2=$(find system vendor -type l 2>/dev/null | sed 's/^/\"\//; s/$/\");/')
 				paste -d '' <(echo "$link1") <(echo "$link2") | sort > $prfiles/symlinks
+				if [[ $(grep "symlink(\"egl/" $prfiles/symlinks) != "" ]]; then
+					sed -i 's/symlink(\"egl/symlink(\"\/egl/' $prfiles/symlinks
+				fi
 				cp $prfiles/symlinks $prfiles/symlinks.orig
 				if [[ -d vendor ]]; then
 					find system vendor -type l -exec rm -f {} \;
@@ -4029,7 +4036,7 @@ get_byname() {
 					return 1
 				fi
 			fi
-			if [[ -f $romdir/system/default.prop ]]; then
+			if [[ -f $romdir/system/init.rc ]]; then
 				cd $romdir/system
 			else
 				cd $romdir/${chosenimg}img/ramdisk
@@ -4154,26 +4161,34 @@ get_byname() {
 	fi
 }
 get_contexts() {
-	if [[ ! -f $prfiles/file_contexts ]]; then
-		if [[ -f $romdir/system/file_contexts.bin ]]; then
-			cp $romdir/system/file_contexts.bin $prfiles/
-		elif [[ -f $romdir/${chosenimg}img/ramdisk/file_contexts ]]; then
-			${usesudo}cp $romdir/${chosenimg}img/ramdisk/file_contexts $prfiles/
-		elif [[ -f $romdir/${chosenimg}img/ramdisk/file_contexts.bin ]]; then
-			${usesudo}cp $romdir/${chosenimg}img/ramdisk/file_contexts.bin $prfiles/
-		elif [[ -f $romdir/output/file_contexts.bin ]]; then
-			cp $romdir/output/file_contexts.bin $prfiles/
-		elif [[ -f $romdir/output/file_contexts ]]; then
-			cp $romdir/output/file_contexts $prfiles/
+	docon() {
+		if [[ ! -f $prfiles/file_contexts ]]; then
+			if [[ -f $romdir/system/file_contexts.bin ]]; then
+				cp $romdir/system/file_contexts.bin $prfiles/
+			elif [[ -f $romdir/${chosenimg}img/ramdisk/file_contexts ]]; then
+				${usesudo}cp $romdir/${chosenimg}img/ramdisk/file_contexts $prfiles/
+			elif [[ -f $romdir/${chosenimg}img/ramdisk/file_contexts.bin ]]; then
+				${usesudo}cp $romdir/${chosenimg}img/ramdisk/file_contexts.bin $prfiles/
+			elif [[ -f $romdir/${chosenimg}img/ramdisk/plat_file_contexts ]]; then
+				${usesudo}cp $romdir/${chosenimg}img/ramdisk/plat_file_contexts $prfiles/file_contexts
+				myuser=$(echo "$(whoami | gawk '{ print $1 }')")
+				${usesudo}chown -h $myuser:$myuser $prfiles/file_contexts
+				nonplat=$(${usesudo}cat $romdir/${chosenimg}img/ramdisk/nonplat_file_contexts)
+				echo "$nonplat" >> $prfiles/file_contexts
+			elif [[ -f $romdir/output/file_contexts.bin ]]; then
+				cp $romdir/output/file_contexts.bin $prfiles/
+			elif [[ -f $romdir/output/file_contexts ]]; then
+				cp $romdir/output/file_contexts $prfiles/
+			fi
 		fi
-	fi
+	}
+	docon
 	if [[ ! -f $prfiles/file_contexts && ! -f $prfiles/file_contexts.bin && -f $romdir/boot.img ]]; then
 		chosenimg="boot"
 		chosenimg2="boot.img"
 		bootext="1"
 		boot_unpack
-		cp $romdir/${chosenimg}img/ramdisk/file_contexts $prfiles/ 2>/dev/null
-		cp $romdir/${chosenimg}img/ramdisk/file_contexts.bin $prfiles/ 2>/dev/null
+		docon
 		${usesudo}rm -rf $romdir/bootimg
 	fi
 	if [[ -f $prfiles/file_contexts.bin ]]; then
@@ -4182,7 +4197,7 @@ get_contexts() {
 		paste -d '\t' <(echo "$contest" | grep -v "^u:") <(echo "$contest" | grep "^u:") | grep -v "S2RP\|ERCP" >> $prfiles/file_contexts
 		rm -rf $prfiles/file_contexts.bin
 	fi
-	if [[ -f $prfiles/file_contexts && $api -ge "23" ]]; then
+	if [[ -f $prfiles/file_contexts ]]; then
 		myuser=$(echo "$(whoami | gawk '{ print $1 }')")
 		${usesudo}chown -h $myuser:$myuser $prfiles/file_contexts
 	fi
@@ -4380,7 +4395,7 @@ imgextract() {
 			apitemp=""
 		fi
 		if [[ $apitmp -ge "19" ]]; then
-			if [[ $extractimg = "system" && -f output/default.prop ]]; then
+			if [[ $extractimg = "system" && -f output/init.rc ]]; then
 				cd output
 				find . -maxdepth 1 | while read line; do
 					line2=$(echo "$line" | sed 's/^\.//')
@@ -4400,7 +4415,7 @@ imgextract() {
 					touch $prfiles/cap_temp
 				fi
 				if [[ $extractimg = "system" ]]; then
-					if [[ -f output/default.prop ]]; then
+					if [[ -f output/init.rc ]]; then
 						find output/system/bin -type f 2>/dev/null | sed 's/^output/system/' > $prfiles/binblk
 						find output/system/vendor/bin -type f 2>/dev/null | sed 's/^output/system/' > $prfiles/vinblk
 						cp $tools/updater/set_meta_list2 $prfiles/set_meta_list
@@ -4506,13 +4521,14 @@ install_binaries() {
 	fi
 	if [[ ! -d $tools/smali ]]; then
 		cd $tools
-		(wget $dlurl/srk_smali.zip 2>&1) >/dev/null
+		ssurl=$(grep "smali =" $tools/depends/urls | gawk '{print $3}')
+		(wget -O srk_smali.zip $ssurl 2>&1) >/dev/null
 		$p7z x -y srk_smali.zip 2>&1 >/dev/null
 		rm -rf srk_smali.zip
 	fi
 	if [[ ! -f $tools/root/root_zips/SuperSU.zip ]]; then
 		cd $tools/root/root_zips
-		ssurl=$(grep "supersu" $tools/depends/urls | gawk '{print $3}')
+		ssurl=$(grep "supersu =" $tools/depends/urls | gawk '{print $3}')
 		(wget -O SuperSU.zip $ssurl 2>&1) >/dev/null
 	fi
 	if [[ ! -f $tools/root/busybox/Busybox.zip ]]; then
@@ -4617,7 +4633,7 @@ isdebloatcustomstatus() {
 isdmverity() {
 	if [[ -d $romdir/bootimg/ramdisk ]]; then
 		cd $romdir/bootimg/ramdisk
-	elif [[ -f $romdir/system/default.prop ]]; then
+	elif [[ -f $romdir/system/init.rc ]]; then
 		cd $romdir/system
 	else
 		return 1
@@ -4634,7 +4650,7 @@ isdmverity() {
 isforcee() {
 	if [[ -d $romdir/bootimg/ramdisk ]]; then
 		cd $romdir/bootimg/ramdisk
-	elif [[ -f $romdir/system/default.prop ]]; then
+	elif [[ -f $romdir/system/init.rc ]]; then
 		cd $romdir/system
 	else
 		return 1
@@ -4656,7 +4672,7 @@ isfullrom() {
 			fullrom="No"
 			fullrom1=$(echo "$redt$t_no$normal")
 		else
-			if [[ ! -f $romdir/system/default.prop && ! -f $romdir/boot.img && ! -f $prfiles/noboot ]]; then
+			if [[ ! -f $romdir/system/init.rc && ! -f $romdir/boot.img && ! -f $prfiles/noboot ]]; then
 				banner
 				echo -e "$t_build_no_boot_q"
 				read -n 1 -p "" reply
@@ -4679,7 +4695,7 @@ isinitd() {
 	if [[ -d $romdir/bootimg/ramdisk ]]; then
 		cd $romdir/bootimg/ramdisk
 		inittest=$(${usesudo}grep -r "init\.d" . | grep -v "lge_fota\|chargerlogo")
-	elif [[ -f $romdir/system/default.prop ]]; then
+	elif [[ -f $romdir/system/init.rc ]]; then
 		cd $romdir/system
 		inittest=''
 		find . -not -path "*system*" 2>/dev/null | while read line; do
@@ -4702,7 +4718,7 @@ isinitd() {
 isinsecure() {
 	if [[ -f $romdir/bootimg/ramdisk/default.prop ]]; then
 		insectest=$(${usesudo}grep "ro.secure=0" $romdir/bootimg/ramdisk/default.prop)
-	elif [[ -f $romdir/system/default.prop ]]; then
+	elif [[ -f $romdir/system/init.rc ]]; then
 		insectest=$(grep "ro.secure=0" $romdir/system/default.prop)
 	else
 		return 1
@@ -5369,7 +5385,7 @@ partimg() {
 	fi
 	echo "$bluet$t_img_create_raw $whatimg.img ...$normal"
 	if [[ $whatimg = "system" ]]; then
-		if [[ -f $romdir/system/default.prop ]]; then
+		if [[ -f $romdir/system/init.rc ]]; then
 			( $make_ext4fs -T 0$fcontexts -l $syssize -L / -a /$sparseimg ${whatimg}_new.img ${whatimg}/ 2>&1 ) >> $logs/main.log
 		else
 			( $make_ext4fs -T 0$fcontexts -l $syssize -a $whatimg$sparseimg ${whatimg}_new.img ${whatimg}/ 2>&1 ) >> $logs/main.log
@@ -5768,7 +5784,7 @@ root_busyboxrem() {
 }
 root_sud() {
 	mkdir -p $sysdir/su.d
-	if [[ -f $romdir/system/default.prop ]]; then
+	if [[ -f $romdir/system/init.rc ]]; then
 		sudfile="$tools/boot/sud_perms2"
 	else
 		sudfile="$tools/boot/sud_perms"
@@ -6014,7 +6030,7 @@ update_project() {
 				echo "1) $t_perm_set_metadata"
 			fi
 			echo "2) $t_perm_set_perm"
-			if [[ $api -ge "21" && ! -f $romdir/system/default.prop ]]; then
+			if [[ $api -ge "21" && ! -f $romdir/system/init.rc ]]; then
 				echo "3) $t_perm_sparse"
 			else
 				echo "${redt}3) $t_perm_sparse_red$normal"
@@ -6041,7 +6057,7 @@ update_project() {
 			echo "$permtype" > $prfiles/permtype
 		# Sparse dat chosen
 		elif [[ $choice = "3" ]]; then
-			if [[ $api -lt "21" || -f $romdir/system/default.prop ]]; then
+			if [[ $api -lt "21" || -f $romdir/system/init.rc ]]; then
 				banner
 				echo "$redt$t_perm_sparse_error$normal"
 				echo ""
@@ -6141,7 +6157,7 @@ update_project() {
 		fi
 		sed 's/\\././g; s/(\/\.\*)?//g' file_contexts2 | gawk '{ print $1, $2 }' | sort > file_contexts3
 		mv file_contexts3 file_contexts2
-		if [[ -f $romdir/system/default.prop ]]; then
+		if [[ -f $romdir/system/init.rc ]]; then
 			sed -i 's/^/\/system/g' file_contexts2
 		fi
 		if [[ ! -f set_metadata1 ]]; then
@@ -6153,7 +6169,7 @@ update_project() {
 					grep -m 1 "^$line " file_contexts2 >> pre_metadata
 				fi
 			done
-			if [[ -f $romdir/system/default.prop ]]; then
+			if [[ -f $romdir/system/init.rc ]]; then
 				metadata=$tools/updater/set_metadata-data2
 			else
 				metadata=$tools/updater/set_metadata-data
@@ -6591,7 +6607,7 @@ fi
 if [[ -f $romdir/build.prop ]]; then
 	api=$(grep "ro.build.version.sdk" $romdir/build.prop | cut -d"=" -f2)
 fi
-if [[ ! -f $romdir/system/default.prop && $cyg = "" ]]; then
+if [[ ! -f $romdir/system/init.rc && $cyg = "" ]]; then
 	export usesudo="sudo "
 else
 	export usesudo=""
