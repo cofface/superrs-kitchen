@@ -237,10 +237,10 @@ boot_initd() {
 			if [[ -f $sysdir/bin/sysinit && ! $(grep "init.d" $sysdir/bin/sysinit) = "" ]]; then
 				rm -rf $sysdir/bin/sysinit
 			fi
-			cd $romdir/bootimg/ramdisk
+			cd $ramdir
 			rm -rf $sysdir/etc/init.d
-			${usesudo}rm -rf $romdir/bootimg/ramdisk/sbin/sysinit.sh
-			${usesudo}rm -rf $romdir/bootimg/ramdisk/init.d_support.sh
+			${usesudo}rm -rf $ramdir/sbin/sysinit.sh
+			${usesudo}rm -rf $ramdir/init.d_support.sh
 			${usesudo}grep -v "init.d_support" init.rc > init.rc2
 			${usesudo}mv init.rc2 init.rc
 			${usesudo}sed -i "s/[[:blank:]]*$//" init.rc
@@ -280,17 +280,17 @@ boot_insecure() {
 		return 1
 	fi
 	if [[ $insecurestatus = "No" ]]; then
-		if [[ ! $(${usesudo}grep "ro.secure=1" $ramdir/default.prop) = "" ]]; then
-			${usesudo}sed -i 's/ro\.secure=1/ro\.secure=0/' $ramdir/default.prop
+		if [[ ! $(${usesudo}grep "ro.secure=1" $dfprop) = "" ]]; then
+			${usesudo}sed -i 's/ro\.secure=1/ro\.secure=0/' $dfprop
 		else
-			${usesudo}gawk 'a=/^#/{b=1}b&&!a{print "ro\.secure=0";b=0}1' $ramdir/default.prop > $ramdir/default.prop2
-			${usesudo}mv $ramdir/default.prop2 $ramdir/default.prop
+			${usesudo}gawk 'a=/^#/{b=1}b&&!a{print "ro\.secure=0";b=0}1' $dfprop > ${dfprop}2
+			${usesudo}mv ${dfprop}2 $dfprop
 		fi
-		if [[ ! $(${usesudo}grep "ro.adb.secure=1" $ramdir/default.prop) = "" ]]; then
-			${usesudo}sed -i 's/ro\.adb\.secure=1/ro\.adb\.secure=0/' $ramdir/default.prop
+		if [[ ! $(${usesudo}grep "ro.adb.secure=1" $dfprop) = "" ]]; then
+			${usesudo}sed -i 's/ro\.adb\.secure=1/ro\.adb\.secure=0/' $dfprop
 		else
-			${usesudo}gawk 'a=/ro\.secure=0/{b=1}b&&!a{print "ro\.adb\.secure=0";b=0}1' $ramdir/default.prop > $ramdir/default.prop2
-			${usesudo}mv $ramdir/default.prop2 $ramdir/default.prop
+			${usesudo}gawk 'a=/ro\.secure=0/{b=1}b&&!a{print "ro\.adb\.secure=0";b=0}1' $dfprop > ${dfprop}2
+			${usesudo}mv ${dfprop}2 $dfprop
 		fi
 		banner
 		echo "$greent$t_boot_insecure$normal"
@@ -306,8 +306,8 @@ boot_insecure() {
 		echo ""
 		echo ""
 		if [[ $REPLY = "y" ]]; then
-			${usesudo}sed -i 's/ro\.secure=0/ro\.secure=1/' $ramdir/default.prop
-			${usesudo}sed -i 's/ro\.adb\.secure=0/ro\.adb\.secure=1/' $ramdir/default.prop
+			${usesudo}sed -i 's/ro\.secure=0/ro\.secure=1/' $dfprop
+			${usesudo}sed -i 's/ro\.adb\.secure=0/ro\.adb\.secure=1/' $dfprop
 			banner
 			echo "$greentt_boot_secure$normal"
 			echo ""
@@ -454,27 +454,34 @@ boot_tools() {
 			fi
 		fi
 	fi
+	if [[ ! -f $romdir/system/init.rc ]]; then
+		if [[ ! -d $romdir/bootimg && ! -d $romdir/recoveryimg ]]; then
+			prchoice="ext"
+			choose_img
+		else
+			if [[ -d $romdir/bootimg ]]; then
+				chosenimg="boot"
+				chosenimg2="boot.img"
+			elif [[ -d $romdir/recoveryimg ]]; then
+				chosenimg="recovery"
+				chosenimg2="recovery.img"
+			fi
+		fi
+		ramdir="$romdir/${chosenimg}img/ramdisk"
+		dfprop="$ramdir/default.prop"
+	else
+		chosenimg="boot"
+		ramdir="$romdir/system"
+		if [[ -f $romdir/system/default.prop ]]; then
+			dfprop="$romdir/system/default.prop"
+		elif [[ -f $romdir/vendor/default.prop ]]; then
+			dfprop="$romdir/vendor/default.prop"
+		fi
+	fi
 	isdmverity
 	isforcee
 	isinitd
 	isinsecure
-	if [[ ! -d $romdir/bootimg && ! -d $romdir/recoveryimg ]]; then
-		prchoice="ext"
-		choose_img
-	else
-		if [[ -d $romdir/bootimg ]]; then
-			chosenimg="boot"
-			chosenimg2="boot.img"
-		elif [[ -d $romdir/recoveryimg ]]; then
-			chosenimg="recovery"
-			chosenimg2="recovery.img"
-		fi
-	fi
-	if [[ -f $romdir/system/init.rc ]]; then
-		ramdir="$romdir/system"
-	else
-		ramdir="$romdir/${chosenimg}img/ramdisk"
-	fi
 	if [[ -d $romdir/${chosenimg}img || -f $romdir/system/init.rc ]]; then
 		choice=""
 		while [[ ! ${choice} =~ ^[1-5]$ ]] && [[ ! $choice = "m" && ! $choice = "q" ]]; do
@@ -522,11 +529,6 @@ boot_tools() {
 			return 1
 		# START Remove dm-verity
 		elif [[ $choice = "4" ]]; then
-			if [[ -f $romdir/system/init.rc ]]; then
-				cd $romdir/system
-			else
-				cd $romdir/bootimg/ramdisk
-			fi
 			findfstab
 			if [[ $(${usesudo}grep "verify" $fstab) = "" ]]; then
 				banner
@@ -2411,7 +2413,7 @@ deodex() {
 		done
 	fi
 	if [[ $dtype != "l" ]]; then
-		if [[ -f $romdir/system/init.rc ]]; then
+		if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 			odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/system/framework/oat/\|system/system/framework/$arch/\|system/system/framework/$arch2/\|^system/system/app/\|^system/system/priv-app/\|system/system/vendor/framework" | rev | cut -d"/" -f4- | rev | sort -u)
 		else
 			odextmp=$(find system vendor -name *.odex 2>/dev/null | grep -v "system/framework/oat/\|system/framework/$arch/\|system/framework/$arch2/\|^system/app/\|^system/priv-app/\|system/vendor/framework" | rev | cut -d"/" -f4- | rev | sort -u)
@@ -3684,11 +3686,13 @@ extract_new() {
 			tar -xf $romtar 2>/dev/null >> $logs/zip.log
 		fi
 	fi
-	if [[ -f $romdir/system/init.rc && -d $romdir/system/system ]]; then
+	if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 		sysdir="$romdir/system/system"
 	elif [[ -f $romdir/system/system/build.prop ]]; then
 		mv $romdir/system/system/* $romdir/system/
 		rm -rf $romdir/system/system
+		sysdir="$romdir/system"
+	else
 		sysdir="$romdir/system"
 	fi
 	if [[ -f $sysdir/xbin/su || -f $sysdir/bin/su ]]; then
@@ -3798,20 +3802,31 @@ extract_new() {
 	return 1
 }
 findfstab() {
-	fstmp=$(${usesudo}find -maxdepth 1 ! -type l | grep fstab | grep -v "goldfish\|ranchu\|charger\|zram\|nodata\|\.fwup\|\.fota\|mofd_v1\|\.ftm\." | sed 's/\.\///')
-	for i in "$fstmp"; do
-		if [[ $(${usesudo}grep "/system" "$i" | grep -v "^#") != "" ]]; then
-			fstab="$i"
+	fsdir="$romdir/bootimg/ramdisk $romdir/system $romdir/vendor/etc $romdir/recoveryimg/ramdisk/etc"
+	for i in $fsdir; do
+		fstmp=$(${usesudo}find $i -maxdepth 1 ! -type l 2>/dev/null | grep fstab | grep -v "goldfish\|ranchu\|charger\|zram\|nodata\|\.fwup\|\.fota\|mofd_v1\|\.ftm\|\.sdboot" | sed 's/\.\///')
+		if [[ -e $fstmp ]]; then
 			break
 		fi
 	done
-	if [[ $fstab = "" ]]; then
+	if [[ -e $fstmp ]]; then
 		for i in "$fstmp"; do
-			if [[ $(${usesudo}grep "/data" "$i" | grep -v "^#") != "" ]]; then
+			if [[ $(${usesudo}grep "/system" "$i" | grep -v "^#") != "" ]]; then
 				fstab="$i"
 				break
 			fi
 		done
+		if [[ $fstab = "" ]]; then
+			for i in "$fstmp"; do
+				if [[ $(${usesudo}grep "/data" "$i" | grep -v "^#") != "" ]]; then
+					fstab="$i"
+					break
+				fi
+			done
+		fi
+	else
+		fstab="error"
+		echo "ERROR: Could not find fstab" >> $logs/boot.log
 	fi
 }
 findimgsize() {
@@ -4179,6 +4194,8 @@ get_contexts() {
 				cp $romdir/output/file_contexts.bin $prfiles/
 			elif [[ -f $romdir/output/file_contexts ]]; then
 				cp $romdir/output/file_contexts $prfiles/
+			elif [[ -f $romdir/system/file_contexts ]]; then
+				cp $romdir/system/file_contexts $prfiles/
 			fi
 		fi
 	}
@@ -4395,7 +4412,7 @@ imgextract() {
 			apitemp=""
 		fi
 		if [[ $apitmp -ge "19" ]]; then
-			if [[ $extractimg = "system" && -f output/init.rc ]]; then
+			if [[ $extractimg = "system" && -f output/init.rc && -d output/system/app ]]; then
 				cd output
 				find . -maxdepth 1 | while read line; do
 					line2=$(echo "$line" | sed 's/^\.//')
@@ -4415,7 +4432,7 @@ imgextract() {
 					touch $prfiles/cap_temp
 				fi
 				if [[ $extractimg = "system" ]]; then
-					if [[ -f output/init.rc ]]; then
+					if [[ -f output/init.rc && -d output/system/app ]]; then
 						find output/system/bin -type f 2>/dev/null | sed 's/^output/system/' > $prfiles/binblk
 						find output/system/vendor/bin -type f 2>/dev/null | sed 's/^output/system/' > $prfiles/vinblk
 						cp $tools/updater/set_meta_list2 $prfiles/set_meta_list
@@ -4716,10 +4733,8 @@ isinitd() {
 	fi
 }
 isinsecure() {
-	if [[ -f $romdir/bootimg/ramdisk/default.prop ]]; then
-		insectest=$(${usesudo}grep "ro.secure=0" $romdir/bootimg/ramdisk/default.prop)
-	elif [[ -f $romdir/system/init.rc ]]; then
-		insectest=$(grep "ro.secure=0" $romdir/system/default.prop)
+	if [[ -f $dfprop ]]; then
+		insectest=$(${usesudo}grep "ro.secure=0" $dfprop)
 	else
 		return 1
 	fi
@@ -5385,7 +5400,7 @@ partimg() {
 	fi
 	echo "$bluet$t_img_create_raw $whatimg.img ...$normal"
 	if [[ $whatimg = "system" ]]; then
-		if [[ -f $romdir/system/init.rc ]]; then
+		if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 			( $make_ext4fs -T 0$fcontexts -l $syssize -L / -a /$sparseimg ${whatimg}_new.img ${whatimg}/ 2>&1 ) >> $logs/main.log
 		else
 			( $make_ext4fs -T 0$fcontexts -l $syssize -a $whatimg$sparseimg ${whatimg}_new.img ${whatimg}/ 2>&1 ) >> $logs/main.log
@@ -5419,12 +5434,17 @@ part_setup() {
 			mmcchosen=$(grep "$chosenimg" $deviceloc/superr_mmc | gawk '{ print $1 }')
 			sed -i "s:file_getprop(\"\/tmp\/config\",\ \"byname\")\ +\ \"\/$chosenimg\"\ +\ file_getprop(\"\/tmp\/config\",\ \"slotnum\"):\"$mmcchosen\":g" $usdir/updater-script
 		else
-			banner
-			echo "$redb$yellowt$bold$t_warning$normal"
-			echo ""
-			echo -e "$redt$t_img_flash_fail2$normal"
-			echo ""
-			read -p "$t_enter_continue"
+			if [[ $chosenimg = 'boot' && -f $romdir/system/init.rc ]]; then
+				grep -v " boot \|boot.img" $usdir/updater-script > $usdir/updater-script2
+				mv $usdir/updater-script2 $usdir/updater-script
+			else
+				banner
+				echo "$redb$yellowt$bold$t_warning$normal"
+				echo ""
+				echo -e "$redt$t_img_flash_fail2$normal"
+				echo ""
+				read -p "$t_enter_continue"
+			fi
 		fi
 		mmcsystem=$(grep "system" $deviceloc/superr_mmc | gawk '{ print $1 }')
 		sed -i "s:file_getprop(\"\/tmp\/config\",\ \"byname\")\ +\ \"\/system\"\ +\ file_getprop(\"\/tmp\/config\",\ \"slotnum\"):\"$mmcsystem\":g" $usdir/updater-script
@@ -5784,7 +5804,7 @@ root_busyboxrem() {
 }
 root_sud() {
 	mkdir -p $sysdir/su.d
-	if [[ -f $romdir/system/init.rc ]]; then
+	if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 		sudfile="$tools/boot/sud_perms2"
 	else
 		sudfile="$tools/boot/sud_perms"
@@ -6157,7 +6177,7 @@ update_project() {
 		fi
 		sed 's/\\././g; s/(\/\.\*)?//g' file_contexts2 | gawk '{ print $1, $2 }' | sort > file_contexts3
 		mv file_contexts3 file_contexts2
-		if [[ -f $romdir/system/init.rc ]]; then
+		if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 			sed -i 's/^/\/system/g' file_contexts2
 		fi
 		if [[ ! -f set_metadata1 ]]; then
@@ -6169,7 +6189,7 @@ update_project() {
 					grep -m 1 "^$line " file_contexts2 >> pre_metadata
 				fi
 			done
-			if [[ -f $romdir/system/init.rc ]]; then
+			if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 				metadata=$tools/updater/set_metadata-data2
 			else
 				metadata=$tools/updater/set_metadata-data
@@ -6574,7 +6594,7 @@ if [[ ! $(ls -d */ | grep 'superr_') = "" ]]; then
 	fi
 fi
 romdir=$base/superr_$romname
-if [[ -f $romdir/system/system/build.prop ]]; then
+if [[ -f $romdir/system/init.rc && -d $romdir/system/system/app ]]; then
 	sysdir="$romdir/system/system"
 else
 	sysdir="$romdir/system"
@@ -6607,10 +6627,11 @@ fi
 if [[ -f $romdir/build.prop ]]; then
 	api=$(grep "ro.build.version.sdk" $romdir/build.prop | cut -d"=" -f2)
 fi
-if [[ ! -f $romdir/system/init.rc && $cyg = "" ]]; then
-	export usesudo="sudo "
-else
-	export usesudo=""
+export usesudo=""
+if [[ $cyg = "" ]]; then
+	if [[ ! -f $romdir/system/init.rc && ! -d $romdir/system/system/app ]]; then
+		export usesudo="sudo "
+	fi
 fi
 choice=""
 while [[ ! ${choice} =~ ^[1-8]$ ]] && [[ ! $choice = "q" ]]; do
