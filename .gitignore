@@ -10,7 +10,6 @@
 !/tools/root/busybox/placeholder
 /tools/smali
 /tools/*srk-chosen
-/tools/language/*
 !/tools/language/english-srk
 /tools/linux_tools
 /tools/cyg_tools
