@@ -7,7 +7,8 @@ banner() {
 	echo ""
 	echo "------------------------------------------------------"
 	echo "$bold$stand                   SuperR's Kitchen                   $normal"
-	echo "$italic$stand                       by SuperR                      $normal"
+	echo "$italic$stand                 Author/原作者： SuperR                      $normal"
+	echo "                 Chinese/汉化: cofface (cofface@cofface.com)			"
 	echo "------------------------------------------------------"
 	echo ""
 }

@@ -12,7 +12,7 @@ export t_menu_misc="Misc Tools"
 export t_menu_boot_recovery="Boot/Recovery Tools"
 export t_menu_rom_tools="ROM Tools Menu"
 export t_menu_new="New Project"
-export t_menu_quit="Quit"
+export t_menu_quit="Quit(退出)"
 export t_menu_back="Back"
 
 # ROM Tools Menu
@@ -253,7 +253,7 @@ export t_extra_data_q="Would you like to add /data/app support?  y/n  "
 export t_extra_data_perm="Please choose /data perm type: "
 
 # Selection
-export t_select="Make your selection:  "
+export t_select="Make your selection(输入你的选项):  "
 export t_select_enter="Make your selection and press ENTER:  "
 
 # Notices
@@ -512,7 +512,7 @@ export t_img_flash_fail2="The flashable will not work because there is no\nparti
 export t_img_sparse_q="What type of system.img should we create?"
 
 # Language
-export t_title_cho_lang="Choose language:"
+export t_title_cho_lang="Choose language(选择语言):"
 export t_reset_language="Language has been reset. Changes will be made\nthe next time you start the kitchen"
 export t_checking_language="Checking language file"
 export t_lang_added="New English language elements have been added to"
